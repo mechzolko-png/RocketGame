@@ -1,0 +1,13 @@
+Make Usable (MU) -> A peace of code that works enough to continue working on other components
+RenderDataStructs (RDS) -> include to game files to make their own RDS:
+EXPL:
+    Player -> PlayerRendD -> (Just pos and stuff like that)
+
+
+TODO:    - Player
+TODO:    - Enemy
+TODO:    - Game
+TODO:    - Item
+TODO:    - Camera
+TODO:    - Textures
+TODO:    - Assets
