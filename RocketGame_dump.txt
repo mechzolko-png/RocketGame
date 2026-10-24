@@ -1,0 +1,956 @@
+﻿===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\Bullet\Bullet.cpp =====
+#include "Bullet.h"
+
+#include <vector>
+// #include "../Player/Spark.h"
+// TODO: Add spark to bullet
+
+
+
+
+void Bullet::update(const float dt) {
+    position.x += velocity.x * dt;
+    position.y += velocity.y * dt;
+}
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\Bullet\Bullet.h =====
+#pragma once
+
+#include <raylib.h>
+#include "../../Libs/Math.h"
+
+class Enemy;
+
+class Bullet {
+    public:
+    Vector2D position;
+    Vector2D velocity;
+    Color color = RED;
+    float speed = 10000.0f;
+    float r = 5;
+
+    Bullet(Vector2D position, Vector2D velocity) : position(position), velocity(velocity) {};
+
+    void update(const float dt);
+};
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\Enemy\Enemy.cpp =====
+//
+// Created by Gravity_BYG on 2026. 10. 18..
+//
+
+#include "Enemy.h"
+#include "../Player/Player.h"
+
+void Enemy::Controll(Player& player) {
+    velocity = Math::getVelocity(position,player.position,100);
+}
+
+void Enemy::Move (float dt) {
+    position.x += velocity.x * dt;
+    position.y += velocity.y * dt;
+}
+
+void Enemy::update(float dt, Player& player) {
+    Controll(player);
+    Move(dt);
+}
+
+void Enemy::draw() {
+    DrawCircle(position.x,position.y,radius,color);
+}
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\Enemy\Enemy.h =====
+#pragma once
+#include <raylib.h>
+
+#include "../../Libs/Math.h"
+
+class Player;
+
+class Enemy {
+    public:
+    Vector2D position;
+    Vector2D velocity;
+    Color color = WHITE;
+    float radius = 10.0f;
+    int hp = 100;
+
+    Enemy (Vector2D position, Vector2D velocity):velocity(velocity),position(position) {};
+    void update(float dt, Player& player);
+    void Move(float dt);
+    void Controll (Player& player);
+    void draw ();
+};
+
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\Item\item.cpp =====
+
+#include "item.h"
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\Item\item.h =====
+#pragma once
+#include "../../Libs/Math.h"
+
+
+
+class Item {
+    public:
+    Vector2D position;
+    Vector2D velocity;
+    float r;
+};
+
+
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\Player\Player.cpp =====
+//
+// Created by Gravity_BYG on 2026. 10. 18..
+//
+#include "Player.h"
+
+
+void Player::takeDmg(float amount) {
+    if (hp >= amount) {
+        hp -= amount;
+    }
+}
+
+void Player::shot (const float dt,float mx, float my, vector<Bullet>& bullets) {
+    Vector2D to = {mx,my};
+    Vector2D vel = Math::getVelocity(position, to,3000.0f);
+    Bullet bullet = Bullet(position,vel);
+    bullets.push_back(bullet);
+    Vector2D dir = Math::getVelocity(position, {mx, my}, 1.0f);
+
+    float px = position.x + dir.x * r;
+    float py = position.y + dir.y * r;
+
+    for (int i = 0; i < 5; i++) {
+        float angle = atan2f(dir.y, dir.x) +
+                      GetRandomValue(-45, 45) * DEG2RAD;
+
+        float speed = GetRandomValue(100, 500);
+
+        float vx = cosf(angle) * speed;
+        float vy = sinf(angle) * speed;
+
+        sparksFromShot.push_back(Spark(px, py, vx, vy));
+    }
+}
+
+void Player::updateSparksFromShot(const float dt) {
+    for (int i = 0; i < sparksFromShot.size();) {
+        Spark& sp = sparksFromShot[i];
+        sp.radius = 3;
+        sp.color = YELLOW;
+        sp.update(dt);
+        sp.life += dt;
+        if (sp.life >= 0.3f) {
+            sparksFromShot.erase(sparksFromShot.begin() + i);
+        } else {
+            i++;
+        }
+    }
+}
+
+void Player::storeItem(Item item) {
+    printf("PASS");
+}
+
+PlayerRendD Player::getRD() {
+    PlayerRendD rd;
+    rd.x = position.x;
+    rd.y = position.y;
+    rd.color.r = 0;
+    rd.color.g = 255;
+    rd.color.b = 200;
+    rd.color.a = 255;
+    rd.radius = r;
+
+    return rd;
+}
+
+void Player::Controll(const float dt) {
+    const float acceleration = 1000.0f;
+    const float maxSpeed = 1000.0f;
+
+    if (!IsKeyDown(KEY_LEFT_SHIFT)) {
+        if (IsKeyDown(KEY_W)) velocity.y -= acceleration * dt;
+        if (IsKeyDown(KEY_S)) velocity.y += acceleration * dt;
+        if (IsKeyDown(KEY_A)) velocity.x -= acceleration * dt;
+        if (IsKeyDown(KEY_D)) velocity.x += acceleration * dt;
+        nitro = false;
+    }
+
+    if (IsKeyDown(KEY_LEFT_SHIFT)) {
+        if (IsKeyDown(KEY_W)) velocity.y -= acceleration*3 * dt;
+        if (IsKeyDown(KEY_S)) velocity.y += acceleration*3 * dt;
+        if (IsKeyDown(KEY_A)) velocity.x -= acceleration*3 * dt;
+        if (IsKeyDown(KEY_D)) velocity.x += acceleration*3 * dt;
+        nitro = true;
+    }
+
+    // if (velocity.x > maxSpeed) velocity.x = maxSpeed;
+    // if (velocity.x < -maxSpeed) velocity.x = -maxSpeed;
+    // if (velocity.y > maxSpeed) velocity.y = maxSpeed;
+    // if (velocity.y < -maxSpeed) velocity.y = -maxSpeed;
+}
+
+void Player::Move(const float dt) {
+    position.x += velocity.x * dt;
+    position.y += velocity.y * dt;
+}
+
+
+void Player::handleSparks(const float dt) {
+    float n = 1;
+    if (nitro) {n = 2;}
+
+    if (IsKeyDown(KEY_W)) {
+        if (!nitro) {
+            float py = position.y + (r + 10);
+            float px = position.x;
+            float vx = rand() % 110 - 50;
+            float vy = rand() % 500*n + 300*n;
+            sparks.push_back(Spark(px, py, vx, vy));
+        }
+        if (nitro) {
+            for (int i = 0; i < 11; i++) {
+                float py = position.y + (r + 10);
+                float px = position.x;
+                float vx = rand() % 110 - 50;
+                float vy = rand() % 500*n + 300*n;
+                sparks.push_back(Spark(px, py, vx, vy));
+            }
+        }
+    }
+
+    if (IsKeyDown(KEY_S)) {
+        if (!nitro) {
+            float py = position.y - (r + 10);
+            float px = position.x;
+            float vx = rand() % 110 - 50;
+            float vy = (rand() % 500*n + 300*n) * -1;
+            sparks.push_back(Spark(px, py, vx, vy));
+        }
+        if (nitro) {
+            for (int i = 0; i < 11;i++) {
+                float py = position.y - (r + 10) ;
+                float px = position.x;
+                float vx = rand() % 110 - 50;
+                float vy = (rand() % 500*n + 300*n) * -1;
+                sparks.push_back(Spark(px, py, vx, vy));
+            }
+        }
+    }
+
+    if (IsKeyDown(KEY_A)) {
+        if (!nitro) {
+            float py = position.y;
+            float px = position.x + (r + 10);
+            float vy = rand() % 101 - 50;
+            float vx = rand() % 500*n + 300*n;
+            sparks.push_back(Spark(px, py, vx, vy));
+        }
+        if (nitro) {
+            for (int i = 0; i < 11; i++) {
+                float py = position.y;
+                float px = position.x + (r + 10);
+                float vy = rand() % 101 - 50;
+                float vx = rand() % 500*n + 300*n;
+                sparks.push_back(Spark(px, py, vx, vy));
+            }
+        }
+    }
+
+    if (IsKeyDown(KEY_D)) {
+        if (!nitro) {
+            float py = position.y;
+            float px = position.x - (r + 10);
+            float vy = rand() % 101 - 50;
+            float vx = (rand() % 500*n + 300*n) * -1;
+            sparks.push_back(Spark(px, py, vx, vy));
+        }
+        if (nitro) {
+            for (int i = 0; i < 11; i++) {
+                float py = position.y;
+                float px = position.x - (r + 10);
+                float vy = rand() % 101 - 50;
+                float vx = (rand() % 500*n + 300*n) * -1;
+                sparks.push_back(Spark(px, py, vx, vy));
+            }
+        }
+    }
+
+    for (int i = 0; i < sparks.size();) {
+        Spark& spark = sparks[i];
+        spark.update(dt);
+        spark.draw();
+
+        // float b = Math::distance(spark.born, spark.position);
+        // float percentage = b / 200.0f;
+        // float mult = 1.0f + 1.0f * percentage;
+        //
+        // spark.radius = spark.originalRadius * mult;
+
+        float b = Math::distance(spark.born, spark.position);
+        float percentage = b / 200.0f;
+
+        if (percentage > 1.0f) percentage = 1.0f;
+
+        float mult = 1.0f + 0.5f * percentage;
+        spark.radius = spark.originalRadius * mult;
+
+        if (!nitro) {
+            unsigned char alpha = static_cast<unsigned char>(255 * (1.0f - percentage));
+            spark.color.a = alpha;
+            spark.color.r = static_cast<unsigned char>(20 + 255 * percentage);
+            spark.color.g = static_cast<unsigned char>(220 - 55 * percentage);
+            spark.color.b = static_cast<unsigned char>(230 * (2.0f - percentage));
+        } else if (nitro) {
+            unsigned char alpha = static_cast<unsigned char>(255 * (1.0f - percentage));
+            spark.color.a = alpha;
+            spark.color.r = static_cast<unsigned char>(20 + 255 * percentage);
+            spark.color.g = static_cast<unsigned char>(220 - 255 * percentage);
+            spark.color.b = static_cast<unsigned char>(230 * (1.0f - percentage));
+        }
+
+        spark.draw();
+
+
+
+        if (Math::distance(spark.position, spark.born) > 200) {
+            sparks.erase(sparks.begin() + i);
+        } else {
+            i++;
+        }
+    }
+}
+
+
+void Player::update(const float dt) {
+    Controll(dt);
+    Move(dt);
+}
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\Player\Player.h =====
+#pragma once
+#include <vector>
+#include "../Item/item.h"
+#include "../../Renderer/RenderDataStructs.h"
+#include "Spark.h"
+#include "../Bullet/Bullet.h"
+
+#include "../../Libs/Math.h"
+
+
+class Player {
+    public:
+    float hp = 100.0f;
+    Vector2D position;
+    Vector2D velocity = {0.0f, 0.0f};
+    float r = 30.0f;
+    float dmg = 5.0f;
+    std::vector<Item> inventory;
+    vector<Spark> sparks;
+    vector<Spark> sparksFromShot;
+    bool nitro = false;
+
+
+    Player(Vector2D position): position(position) {};
+
+    void takeDmg(float amount);
+    void storeItem(Item item);
+    void Move(const float dt);
+    void Controll(const float dt);
+    void handleSparks (const float dt);
+    void shot(const float dt,float mx, float my,vector<Bullet>& bullets);
+    void updateSparksFromShot(const float dt);
+
+    PlayerRendD getRD();
+    void update(const float dt);
+};
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\Player\Spark.cpp =====
+#include "Spark.h"
+
+void Spark::draw() {
+    DrawCircle(position.x, position.y,radius,color);
+}
+
+void Spark::update(const float dt) {
+    position.x += velocity.x * dt;
+    position.y += velocity.y * dt;
+    draw();
+}
+
+
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\Player\Spark.h =====
+#include <raylib.h>
+
+#include "../../Libs/Math.h"
+
+
+
+class Spark {
+    public:
+    Vector2D position;
+    Vector2D velocity;
+    float radius = rand() % 6 + 10;
+    float originalRadius = rand() % 6 + 10;
+    Color color = WHITE;
+    Vector2D born;
+    float life = 0.0f;
+
+    Spark(float x, float y, float vx, float vy) : position(x, y), velocity(vx, vy), born(x, y) {};
+
+    void update(const float dt);
+    void draw();
+};
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\Player\Truster.cpp =====
+
+
+#include "Truster.h"
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\Player\Truster.h =====
+
+
+#ifndef SPACEGAME_TRUSTER_H
+#define SPACEGAME_TRUSTER_H
+
+
+class Truster {
+};
+
+
+#endif //SPACEGAME_TRUSTER_H
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\StarField\StarField.cpp =====
+
+#include "StarField.h"
+#include <random>
+#include <cstdint>
+#include <cmath>
+#include <utility>
+
+void StarField::generateChunk(int x, int y) {
+    auto key = std::make_pair(x, y);
+
+    if (chunks.find(key) != chunks.end()) {
+        return;
+    }
+
+    std::uint32_t seed =
+        static_cast<std::uint32_t>(x) * 73856093u ^
+        static_cast<std::uint32_t>(y) * 19349663u ^
+        0x9E3779B9u;
+
+    std::mt19937 rng(seed);
+
+    std::uniform_real_distribution<float> pos(0.0f, chunkSize);
+    std::uniform_real_distribution<float> size(1.0f, 2.5f);
+    std::uniform_int_distribution<int> brightness(150, 255);
+
+    std::vector<Star> stars;
+    stars.reserve(starsPerChunk);
+
+    for (int i = 0; i < starsPerChunk; i++) {
+        unsigned char b = static_cast<unsigned char>(brightness(rng));
+
+        StarField::Star star = {
+            {
+                x * chunkSize + pos(rng),
+                y * chunkSize + pos(rng)
+            },
+            size(rng),
+            {b, b, b, 255}
+        };
+
+        stars.push_back(star);
+    }
+
+    chunks[key] = std::move(stars);
+}
+
+void StarField::update(Vector2D cameraPosition, float screenWidth, float screenHeight, float zoom) {
+    if (zoom <= 0.0f) {
+        return;
+    }
+
+    float halfWidth = screenWidth / (2.0f * zoom) + margin;
+    float halfHeight = screenHeight / (2.0f * zoom) + margin;
+
+    int minX = static_cast<int>(std::floor((cameraPosition.x - halfWidth) / chunkSize));
+    int maxX = static_cast<int>(std::floor((cameraPosition.x + halfWidth) / chunkSize));
+    int minY = static_cast<int>(std::floor((cameraPosition.y - halfHeight) / chunkSize));
+    int maxY = static_cast<int>(std::floor((cameraPosition.y + halfHeight) / chunkSize));
+
+    for (int x = minX; x <= maxX; x++) {
+        for (int y = minY; y <= maxY; y++) {
+            generateChunk(x, y);
+        }
+    }
+
+    for (auto it = chunks.begin(); it != chunks.end();) {
+        if (it->first.first < minX - 1 || it->first.first > maxX + 1 ||
+            it->first.second < minY - 1 || it->first.second > maxY + 1) {
+            it = chunks.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+void StarField::draw() {
+    for (auto& chunk : chunks) {
+        for (auto& star : chunk.second) {
+            DrawCircleV(
+                {star.position.x, star.position.y},
+                star.radius,
+                star.color
+            );
+        }
+    }
+}
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\StarField\StarField.h =====
+
+#pragma once
+
+#include <map>
+#include <vector>
+#include "../../Libs/Math.h"
+#include <raylib.h>
+
+class StarField {
+private:
+    struct Star {
+        Vector2D position;
+        float radius;
+        Color color;
+    };
+
+    static constexpr float chunkSize = 1000.0f;
+    static constexpr int starsPerChunk = 40;
+    static constexpr float margin = 500.0f;
+
+    std::map<std::pair<int, int>, std::vector<Star>> chunks;
+
+    void generateChunk(int x, int y);
+
+public:
+    void update(Vector2D cameraPosition, float screenWidth, float screenHeight, float zoom);
+    void draw();
+};
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\GameWorld.cpp =====
+
+//
+// Created by Gravity_BYG on 2026. 10. 18..
+//
+
+#include "GameWorld.h"
+
+void GameWorld::handleEnemies(const float dt) {
+    if (level == LEVEL::EASY && !easyDone) {
+        for (int i = 0; i < 10;i++) {
+            float px = player.position.x = 500;
+            float py = player.position.y = 500;
+            Vector2D velocity = Math::getVelocity({px,py},player.position,100);
+            Enemy enemy = Enemy({px,py},velocity);
+            enemies.push_back(enemy);
+        }
+        easyDone = true;
+    }
+}
+
+void GameWorld::drawEnemies() {
+    for (Enemy& enemy : enemies) {
+        enemy.draw();
+    }
+}
+
+
+void GameWorld::useBullet() {
+    for (int i = 0; i < bullets.size();) {
+        Bullet& bullet = bullets[i];
+        for (int i = 0; i < enemies.size(); ) {
+            Enemy& enemy = enemies[i];
+            if (Math::distance(enemy.position, bullet.position) <= enemy.radius + bullet.r) {
+                enemy.hp -= 10;    // Player damage on enemies
+                bullets.erase(bullets.begin() + i);
+            } else {
+                i++;
+            }
+        }
+    }
+}
+
+
+void GameWorld::updateEnemies(float dt) {
+    for (int i = 0; i < enemies.size();) {
+        Enemy& enemy = enemies[i];
+        enemy.update(dt,player);
+        if (enemy.hp <= 0) {
+            enemies.erase(enemies.begin() + i);
+        } else {
+            i++;
+        }
+    }
+}
+
+RD GameWorld::update(const float dt,Vector2 mousePos) {
+    player.update(dt);
+    useBullet();
+    player_RD = player.getRD();
+    rd.player = player_RD;
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+
+        player.shot(dt,mousePos.x, mousePos.y,bullets);
+    }
+
+    for (int i = 0; i < bullets.size();) {
+        Bullet& bullet = bullets[i];
+        bullet.update(dt);
+
+        if (Math::distance(player.position,bullet.position) > 1000) {
+            bullets.erase(bullets.begin() + i);
+        } else {
+            i++;
+        }
+    }
+
+
+    return rd;
+}
+
+void GameWorld::drawBullets() {
+    for (Bullet& bullet : bullets) {
+        DrawCircle(bullet.position.x,bullet.position.y,bullet.r,bullet.color);
+    }
+}
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Game\GameWorld.h =====
+#pragma once
+
+#include "../Renderer/RenderDataStructs.h"
+#include "Player/Player.h"
+#include "Enemy/Enemy.h"
+#include "Bullet/Bullet.h"
+
+enum class LEVEL{
+    EASY,
+    MEDIUM,
+    HARD,
+};
+
+class GameWorld {
+    public:
+    Player player{{10,10}};
+    vector<Enemy> enemies;
+    vector<Bullet> bullets;
+    LEVEL level = LEVEL::EASY;
+    bool easyDone = false;
+    bool mediumDone = false;
+    bool hardDone = false;
+
+    PlayerRendD player_RD = player.getRD();
+    vector<EnemyRendD> enemies_RD;
+    vector<BulletRendD> bullets_RD;
+    RD rd = {player_RD,bullets_RD,enemies_RD};
+
+    void updateEnemies(float dt);
+    void drawBullets();
+    void drawEnemies();
+    void handleEnemies(const float dt);
+    RD update (const float dt, Vector2 mousePos);
+    void useBullet();
+};
+
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Libs\Math.cpp =====
+#include "Math.h"
+
+Vector2D Math::normalize(Vector2D vec) {
+    float length = std::hypot(vec.x, vec.y);
+
+    if (length == 0.0f || !std::isfinite(length))
+        return Vector2D(0, 0);
+
+    return Vector2D(vec.x / length, vec.y / length);
+}
+
+Vector2D Math::getVelocity(Vector2D from, Vector2D to, float speed) {
+    if (!std::isfinite(speed))
+        return Vector2D(0, 0);
+
+    Vector2D direction = normalize(Vector2D(to.x - from.x, to.y - from.y));
+
+    return Vector2D(direction.x * speed, direction.y * speed);
+}
+
+float Math::distance(Vector2D a, Vector2D b) {
+    return std::hypot(b.x - a.x, b.y - a.y);
+}
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Libs\Math.h =====
+#pragma once
+
+#include <iostream>
+#include <string>
+#include <cmath>
+#include <cstdlib>
+#include <vector>
+
+using namespace std;
+
+struct Vector2D {
+    float x;
+    float y;
+
+    Vector2D(float x, float y) : x(x), y(y) {};
+};
+
+class Math {
+public:
+    static Vector2D normalize(Vector2D vec);
+    static Vector2D getVelocity(Vector2D from, Vector2D to, float speed);
+    static float distance(Vector2D a, Vector2D b);
+};
+
+namespace BYGop {
+    void print(std::string txt);
+    void input(std::string txt);
+}
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Renderer\RenderDataStructs.h =====
+#pragma once
+#include <vector>
+#include <raylib.h>
+using namespace std;
+
+// ------------ Render structs ------------
+
+struct PlayerRendD {
+    float x;
+    float y;
+    float radius;
+    Color color;
+};
+
+struct EnemyRendD {
+    float x;
+    float y;
+    float radius;
+    Color color;
+};
+
+struct BulletRendD {
+    float x;
+    float y;
+    float radius;
+    Color color;
+};
+
+struct RD {
+    PlayerRendD player;
+    vector<BulletRendD> bullets;
+    vector<EnemyRendD> enemies;
+};
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Renderer\renderer.cpp =====
+
+#include "renderer.h"
+
+void renderer::drawPlayer(PlayerRendD &p) {
+    DrawCircle(p.x, p.y, p.radius, p.color);
+}
+
+void renderer::drawBullets(BulletRendD &b) {
+    DrawCircle(b.x, b.y, b.radius, b.color);
+}
+
+void renderer::drawEnemies(EnemyRendD &e) {
+    DrawCircle(e.x, e.y, e.radius, e.color);
+}
+
+RendError renderer::update(RD &rd) {
+    drawPlayer(rd.player);
+
+    for (int i = 0; i < rd.enemies.size(); i++) {
+        drawEnemies(rd.enemies[i]);
+    }
+
+    for (int i = 0; i < rd.bullets.size(); i++) {
+        drawBullets(rd.bullets[i]);
+    }
+
+    return RendError::NONE;
+}
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\Renderer\renderer.h =====
+
+#pragma once
+
+#include <raylib.h>
+#include <vector>
+#include "RenderDataStructs.h"
+
+using namespace std;
+
+enum class RendError {
+    NONE,
+    UNKNOWN,
+    UNDEFINED_IN_PLAYER,
+};
+
+class renderer {
+public:
+    static void drawPlayer(PlayerRendD &p);
+    static void drawEnemies(EnemyRendD &e);
+    static void drawBullets(BulletRendD &b);
+
+    static RendError update(RD &rd);
+};
+
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\CMakeLists.txt =====
+cmake_minimum_required(VERSION 3.20)
+project(SpaceGame LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_executable(SpaceGame
+        main.cpp
+        Renderer/renderer.cpp
+        Game/GameWorld.cpp
+        Game/Player/Player.cpp
+        Game/Enemy/Enemy.cpp
+        Game/Bullet/Bullet.cpp
+        Game/Item/item.cpp
+        Game/Player/Truster.cpp
+        Game/Player/Truster.h
+        Game/StarField/StarField.cpp
+        Game/StarField/StarField.h
+        Game/Player/Spark.cpp
+        Game/Player/Spark.h
+        Libs/Math.cpp
+)
+
+target_include_directories(SpaceGame PRIVATE
+        "C:/Users/Zotyi/Downloads/mingw64/include"
+)
+
+target_link_directories(SpaceGame PRIVATE
+        "C:/Users/Zotyi/Downloads/mingw64/lib"
+)
+
+target_link_libraries(SpaceGame PRIVATE
+        raylib
+        opengl32
+        gdi32
+        winmm
+)
+
+target_compile_options(SpaceGame PRIVATE -O2)
+
+===== FILE: C:\Users\Zotyi\CLionProjects\RocketGame\main.cpp =====
+
+#include "Game/GameWorld.h"
+#include "Renderer/renderer.h"
+#include "Game/StarField/StarField.h"
+#include <cmath>
+
+int main() {
+    InitWindow(1024,1080,"Survive To Poo To Throw To Kill ?!");
+    StarField starField;
+    ToggleFullscreen();
+    GameWorld game = GameWorld();
+    Camera2D camera = {0};
+    camera.target = {10.0f, 10.0f};
+    camera.offset = {
+        GetScreenWidth() / 2.0f,
+        GetScreenHeight() / 2.0f
+    };
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+
+    SetTargetFPS(60);
+
+    while (!WindowShouldClose()) {
+        float dt = GetFrameTime();
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
+
+        RD RenderPack = game.update(dt, mousePos);
+
+        Vector2 playerPos = {
+            RenderPack.player.x,
+            RenderPack.player.y
+        };
+
+        float deadZone = 100.0f;
+
+        Vector2 difference = {
+            playerPos.x - camera.target.x,
+            playerPos.y - camera.target.y
+        };
+
+        float distance = sqrtf(
+            difference.x * difference.x +
+            difference.y * difference.y
+        );
+
+        if (distance > deadZone) {
+            float move = distance - deadZone;
+
+            camera.target.x += difference.x / distance * move;
+            camera.target.y += difference.y / distance * move;
+        }
+
+        starField.update(
+            {camera.target.x, camera.target.y},
+            GetScreenWidth(),
+            GetScreenHeight(),
+            camera.zoom
+        );
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+
+        BeginMode2D(camera);
+        DrawText("TUTORIAL:", 20, 20, 30, GREEN);
+        DrawText("Controls: W A S D", 20, 60, 20, GREEN);
+        starField.draw();
+        renderer::update(RenderPack);
+        game.drawBullets();
+        game.drawEnemies();
+        game.player.updateSparksFromShot(dt);
+        game.player.handleSparks(dt);
+        EndMode2D();
+
+        EndDrawing();
+    }
+
+    CloseWindow();
+
+    return 0;
+}

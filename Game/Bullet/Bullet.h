@@ -3,11 +3,13 @@
 #include <raylib.h>
 #include "../../Libs/Math.h"
 
+class Enemy;
+
 class Bullet {
     public:
     Vector2D position;
     Vector2D velocity;
-    Color color = GRAY;
+    Color color = RED;
     float speed = 10000.0f;
     float r = 5;
 

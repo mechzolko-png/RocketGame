@@ -1,0 +1,3 @@
+C:/Users/Zotyi/CLionProjects/RocketGame/build/CMakeFiles/SpaceGame.dir
+C:/Users/Zotyi/CLionProjects/RocketGame/build/CMakeFiles/edit_cache.dir
+C:/Users/Zotyi/CLionProjects/RocketGame/build/CMakeFiles/rebuild_cache.dir

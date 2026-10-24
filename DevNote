@@ -4,10 +4,7 @@ EXPL:
     Player -> PlayerRendD -> (Just pos and stuff like that)
 
 
-TODO:    - Player
 TODO:    - Enemy
-TODO:    - Game
 TODO:    - Item
-TODO:    - Camera
 TODO:    - Textures
 TODO:    - Assets

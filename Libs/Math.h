@@ -4,6 +4,9 @@
 #include <string>
 #include <cmath>
 #include <cstdlib>
+#include <vector>
+
+using namespace std;
 
 struct Vector2D {
     float x;

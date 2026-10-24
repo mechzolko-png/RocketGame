@@ -12,6 +12,7 @@ class Spark {
     float originalRadius = rand() % 6 + 10;
     Color color = WHITE;
     Vector2D born;
+    float life = 0.0f;
 
     Spark(float x, float y, float vx, float vy) : position(x, y), velocity(vx, vy), born(x, y) {};
 

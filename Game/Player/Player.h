@@ -17,6 +17,8 @@ class Player {
     float dmg = 5.0f;
     std::vector<Item> inventory;
     vector<Spark> sparks;
+    vector<Spark> sparksFromShot;
+    bool nitro = false;
 
 
     Player(Vector2D position): position(position) {};
@@ -27,6 +29,7 @@ class Player {
     void Controll(const float dt);
     void handleSparks (const float dt);
     void shot(const float dt,float mx, float my,vector<Bullet>& bullets);
+    void updateSparksFromShot(const float dt);
 
     PlayerRendD getRD();
     void update(const float dt);

@@ -15,6 +15,37 @@ void Player::shot (const float dt,float mx, float my, vector<Bullet>& bullets) {
     Vector2D vel = Math::getVelocity(position, to,3000.0f);
     Bullet bullet = Bullet(position,vel);
     bullets.push_back(bullet);
+    Vector2D dir = Math::getVelocity(position, {mx, my}, 1.0f);
+
+    float px = position.x + dir.x * r;
+    float py = position.y + dir.y * r;
+
+    for (int i = 0; i < 5; i++) {
+        float angle = atan2f(dir.y, dir.x) +
+                      GetRandomValue(-45, 45) * DEG2RAD;
+
+        float speed = GetRandomValue(100, 500);
+
+        float vx = cosf(angle) * speed;
+        float vy = sinf(angle) * speed;
+
+        sparksFromShot.push_back(Spark(px, py, vx, vy));
+    }
+}
+
+void Player::updateSparksFromShot(const float dt) {
+    for (int i = 0; i < sparksFromShot.size();) {
+        Spark& sp = sparksFromShot[i];
+        sp.radius = 3;
+        sp.color = YELLOW;
+        sp.update(dt);
+        sp.life += dt;
+        if (sp.life >= 0.3f) {
+            sparksFromShot.erase(sparksFromShot.begin() + i);
+        } else {
+            i++;
+        }
+    }
 }
 
 void Player::storeItem(Item item) {
@@ -38,10 +69,21 @@ void Player::Controll(const float dt) {
     const float acceleration = 1000.0f;
     const float maxSpeed = 1000.0f;
 
-    if (IsKeyDown(KEY_W)) velocity.y -= acceleration * dt;
-    if (IsKeyDown(KEY_S)) velocity.y += acceleration * dt;
-    if (IsKeyDown(KEY_A)) velocity.x -= acceleration * dt;
-    if (IsKeyDown(KEY_D)) velocity.x += acceleration * dt;
+    if (!IsKeyDown(KEY_LEFT_SHIFT)) {
+        if (IsKeyDown(KEY_W)) velocity.y -= acceleration * dt;
+        if (IsKeyDown(KEY_S)) velocity.y += acceleration * dt;
+        if (IsKeyDown(KEY_A)) velocity.x -= acceleration * dt;
+        if (IsKeyDown(KEY_D)) velocity.x += acceleration * dt;
+        nitro = false;
+    }
+
+    if (IsKeyDown(KEY_LEFT_SHIFT)) {
+        if (IsKeyDown(KEY_W)) velocity.y -= acceleration*3 * dt;
+        if (IsKeyDown(KEY_S)) velocity.y += acceleration*3 * dt;
+        if (IsKeyDown(KEY_A)) velocity.x -= acceleration*3 * dt;
+        if (IsKeyDown(KEY_D)) velocity.x += acceleration*3 * dt;
+        nitro = true;
+    }
 
     // if (velocity.x > maxSpeed) velocity.x = maxSpeed;
     // if (velocity.x < -maxSpeed) velocity.x = -maxSpeed;
@@ -56,36 +98,83 @@ void Player::Move(const float dt) {
 
 
 void Player::handleSparks(const float dt) {
+    float n = 1;
+    if (nitro) {n = 2;}
+
     if (IsKeyDown(KEY_W)) {
-        float py = position.y + (r + 10);
-        float px = position.x;
-        float vx = rand() % 110 - 50;
-        float vy = rand() % 500 + 300;
-        sparks.push_back(Spark(px, py, vx, vy));
+        if (!nitro) {
+            float py = position.y + (r + 10);
+            float px = position.x;
+            float vx = rand() % 110 - 50;
+            float vy = rand() % 500*n + 300*n;
+            sparks.push_back(Spark(px, py, vx, vy));
+        }
+        if (nitro) {
+            for (int i = 0; i < 11; i++) {
+                float py = position.y + (r + 10);
+                float px = position.x;
+                float vx = rand() % 110 - 50;
+                float vy = rand() % 500*n + 300*n;
+                sparks.push_back(Spark(px, py, vx, vy));
+            }
+        }
     }
 
     if (IsKeyDown(KEY_S)) {
-        float py = position.y - (r + 10) ;
-        float px = position.x;
-        float vx = rand() % 110 - 50;
-        float vy = (rand() % 500 + 300) * -1;
-        sparks.push_back(Spark(px, py, vx, vy));
+        if (!nitro) {
+            float py = position.y - (r + 10);
+            float px = position.x;
+            float vx = rand() % 110 - 50;
+            float vy = (rand() % 500*n + 300*n) * -1;
+            sparks.push_back(Spark(px, py, vx, vy));
+        }
+        if (nitro) {
+            for (int i = 0; i < 11;i++) {
+                float py = position.y - (r + 10) ;
+                float px = position.x;
+                float vx = rand() % 110 - 50;
+                float vy = (rand() % 500*n + 300*n) * -1;
+                sparks.push_back(Spark(px, py, vx, vy));
+            }
+        }
     }
 
     if (IsKeyDown(KEY_A)) {
-        float py = position.y;
-        float px = position.x + (r + 10);
-        float vy = rand() % 101 - 50;
-        float vx = rand() % 500 + 300;
-        sparks.push_back(Spark(px, py, vx, vy));
+        if (!nitro) {
+            float py = position.y;
+            float px = position.x + (r + 10);
+            float vy = rand() % 101 - 50;
+            float vx = rand() % 500*n + 300*n;
+            sparks.push_back(Spark(px, py, vx, vy));
+        }
+        if (nitro) {
+            for (int i = 0; i < 11; i++) {
+                float py = position.y;
+                float px = position.x + (r + 10);
+                float vy = rand() % 101 - 50;
+                float vx = rand() % 500*n + 300*n;
+                sparks.push_back(Spark(px, py, vx, vy));
+            }
+        }
     }
 
     if (IsKeyDown(KEY_D)) {
-        float py = position.y;
-        float px = position.x - (r + 10);
-        float vy = rand() % 101 - 50;
-        float vx = (rand() % 500 + 300) * -1;
-        sparks.push_back(Spark(px, py, vx, vy));
+        if (!nitro) {
+            float py = position.y;
+            float px = position.x - (r + 10);
+            float vy = rand() % 101 - 50;
+            float vx = (rand() % 500*n + 300*n) * -1;
+            sparks.push_back(Spark(px, py, vx, vy));
+        }
+        if (nitro) {
+            for (int i = 0; i < 11; i++) {
+                float py = position.y;
+                float px = position.x - (r + 10);
+                float vy = rand() % 101 - 50;
+                float vx = (rand() % 500*n + 300*n) * -1;
+                sparks.push_back(Spark(px, py, vx, vy));
+            }
+        }
     }
 
     for (int i = 0; i < sparks.size();) {
@@ -107,11 +196,19 @@ void Player::handleSparks(const float dt) {
         float mult = 1.0f + 0.5f * percentage;
         spark.radius = spark.originalRadius * mult;
 
-        unsigned char alpha = static_cast<unsigned char>(255 * (1.0f - percentage));
-        spark.color.a = alpha;
-        spark.color.r = static_cast<unsigned char>(20 + 255 * percentage);
-        spark.color.g = static_cast<unsigned char>(220 - 55 * percentage);
-        spark.color.b = static_cast<unsigned char>(230 * (2.0f - percentage));
+        if (!nitro) {
+            unsigned char alpha = static_cast<unsigned char>(255 * (1.0f - percentage));
+            spark.color.a = alpha;
+            spark.color.r = static_cast<unsigned char>(20 + 255 * percentage);
+            spark.color.g = static_cast<unsigned char>(220 - 55 * percentage);
+            spark.color.b = static_cast<unsigned char>(230 * (2.0f - percentage));
+        } else if (nitro) {
+            unsigned char alpha = static_cast<unsigned char>(255 * (1.0f - percentage));
+            spark.color.a = alpha;
+            spark.color.r = static_cast<unsigned char>(20 + 255 * percentage);
+            spark.color.g = static_cast<unsigned char>(220 - 255 * percentage);
+            spark.color.b = static_cast<unsigned char>(230 * (1.0f - percentage));
+        }
 
         spark.draw();
 
