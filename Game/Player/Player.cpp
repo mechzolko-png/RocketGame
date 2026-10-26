@@ -180,7 +180,6 @@ void Player::handleSparks(const float dt) {
     for (int i = 0; i < sparks.size();) {
         Spark& spark = sparks[i];
         spark.update(dt);
-        spark.draw();
 
         // float b = Math::distance(spark.born, spark.position);
         // float percentage = b / 200.0f;
@@ -210,9 +209,7 @@ void Player::handleSparks(const float dt) {
             spark.color.b = static_cast<unsigned char>(230 * (1.0f - percentage));
         }
 
-        spark.draw();
-
-
+        
 
         if (Math::distance(spark.position, spark.born) > 200) {
             sparks.erase(sparks.begin() + i);

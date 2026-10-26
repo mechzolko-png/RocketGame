@@ -19,6 +19,8 @@ add_executable(SpaceGame WIN32
         Game/Player/Spark.cpp
         Game/Player/Spark.h
         Libs/Math.cpp
+        Game/Planet/PlanetField.cpp
+        Game/Planet/PlanetField.h
 )
 
 target_include_directories(SpaceGame PRIVATE

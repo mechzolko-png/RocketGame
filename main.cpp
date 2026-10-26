@@ -5,7 +5,7 @@
 #include <cmath>
 
 int main() {
-    InitWindow(1024,1080,"Survive To Poo To Throw To Kill ?!");
+    InitWindow(1920,1080,"Space Game");
     StarField starField;
     ToggleFullscreen();
     GameWorld game = GameWorld();
@@ -82,6 +82,7 @@ int main() {
         DrawText(TextFPS.c_str(), 20, 80, 20, GREEN);
         DrawText("Settings: Press l to swap between 144 and 60 FPS", 20, 100, 20, GREEN);
         starField.draw();
+        game.drawPlanets();
         renderer::update(RenderPack);
         game.drawBullets();
         game.drawEnemies();

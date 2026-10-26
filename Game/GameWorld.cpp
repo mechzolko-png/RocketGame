@@ -69,7 +69,37 @@ void GameWorld::useBullet() {
     }
 }
 
+void GameWorld::updatePlanets() {
+    for (auto& [key, planets] : planetField.getChunks()) {
+        for (Planet& planet : planets) {
+            for (int i = 0; i < bullets.size();) {
+                Bullet& bullet = bullets[i];
 
+                if (Math::distance(planet.position, bullet.position)
+                    <= bullet.r + planet.r) {
+
+                    planet.health -= 20;
+                    bullets.erase(bullets.begin() + i);
+                    } else {
+                        i++;
+                    }
+            }
+        }
+    }
+}
+
+void GameWorld::drawPlanets() {
+    for (const auto& [key, planets] : planetField.getChunks()) {
+        for (const Planet& planet : planets) {
+            DrawCircle(
+                planet.position.x,
+                planet.position.y,
+                planet.r,
+                planet.color
+            );
+        }
+    }
+}
 
 void GameWorld::updateEnemies(float dt) {
     for (int i = 0; i < enemies.size();) {
@@ -108,6 +138,9 @@ RD GameWorld::update(const float dt, Vector2 mousePos) {
     }
 
     useBullet();
+    planetField.generateAround({player.position.x,player.position.y}, 1);
+    planetField.generateAround(player.position, 1);
+    updatePlanets();
 
     return rd;
 }

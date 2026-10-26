@@ -4,6 +4,7 @@
 #include "Player/Player.h"
 #include "Enemy/Enemy.h"
 #include "Bullet/Bullet.h"
+#include "Planet/PlanetField.h"
 
 enum class LEVEL{
     EASY,
@@ -13,10 +14,12 @@ enum class LEVEL{
 
 class GameWorld {
     public:
+    PlanetField planetField;
     Player player{{10,10}};
     vector<Enemy> enemies;
     vector<Bullet> bullets;
     LEVEL level = LEVEL::EASY;
+    // blocks the level repeate
     bool easyDone = false;
     bool mediumDone = false;
     bool hardDone = false;
@@ -32,5 +35,7 @@ class GameWorld {
     void handleEnemies(const float dt);
     RD update (const float dt, Vector2 mousePos);
     void useBullet();
+    void updatePlanets();
+    void drawPlanets();
 };
 
