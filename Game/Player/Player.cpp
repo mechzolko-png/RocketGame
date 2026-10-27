@@ -48,9 +48,7 @@ void Player::updateSparksFromShot(const float dt) {
     }
 }
 
-void Player::storeItem(Item item) {
-    printf("PASS");
-}
+
 
 PlayerRendD Player::getRD() {
     PlayerRendD rd;
@@ -223,4 +221,45 @@ void Player::handleSparks(const float dt) {
 void Player::update(const float dt) {
     Controll(dt);
     Move(dt);
+}
+
+
+void Player::displayInventory() {
+    int diamond = 0; int stone = 0; int dirt = 0; int gold = 0; int iron = 0;
+
+    for (ItemI& item : inventory) {
+        switch (item.type) {
+            case PlanetType::IRON:
+                iron += 1;
+                break;
+            case PlanetType::DIAMOND:
+                diamond += 1;
+                break;
+            case PlanetType::STONE:
+                stone += 1;
+                break;
+            case PlanetType::GOLDEN:
+                gold += 1;
+                break;
+            case PlanetType::DIRT:
+                dirt += 1;
+                break;
+            default:
+                diamond += 0;
+                break;
+        }
+    }
+
+    string diaText = "DIAMONDS: " + to_string(diamond);
+    string dirText = "DIRT: " + to_string(dirt);
+    string sText = "STONE: " + to_string(stone);
+    string gText = "GOLD: " + to_string(gold);
+    string iText = "IRON: " + to_string(iron);
+
+    DrawText(diaText.c_str(), 20 + position.x, 60 + position.y, 20, SKYBLUE);
+    DrawText(dirText.c_str(), 20 + position.x, 90 + position.y, 20, BROWN);
+    DrawText(sText.c_str(), 20 + position.x, 120 + position.y, 20, GRAY);
+    DrawText(gText.c_str(), 20 + position.x, 150 + position.y, 20, GOLD);
+    DrawText(iText.c_str(), 20 + position.x, 180 + position.y, 20, LIGHTGRAY);
+
 }

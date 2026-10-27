@@ -18,6 +18,7 @@ class GameWorld {
     Player player{{10,10}};
     vector<Enemy> enemies;
     vector<Bullet> bullets;
+    vector<ItemP> items;
     LEVEL level = LEVEL::EASY;
     // blocks the level repeate
     bool easyDone = false;
@@ -37,5 +38,7 @@ class GameWorld {
     void useBullet();
     void updatePlanets();
     void drawPlanets();
+    void drawItems ();
+    void storeItems();
 };
 

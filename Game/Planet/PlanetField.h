@@ -3,18 +3,13 @@
 
 #include "raylib.h"
 #include "../../Libs/Math.h"
+#include "PlnateType.h"
 
 #include <map>
 #include <utility>
 #include <vector>
 
-enum class PlanetType {
-    DIRT,
-    STONE,
-    IRON,
-    GOLDEN,
-    DIAMOND
-};
+
 
 struct Planet {
     Vector2D position;

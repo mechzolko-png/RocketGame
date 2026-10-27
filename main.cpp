@@ -21,6 +21,7 @@ int main() {
     SetTargetFPS(144);
     int FPS = 144;
     bool swap = false;
+    bool inventory = false;
 
     while (!WindowShouldClose()) {
         float dt = GetFrameTime();
@@ -38,6 +39,10 @@ int main() {
                 FPS = 144;
                 swap = false;
             }
+        }
+
+        if (IsKeyPressed(KEY_I)) {
+            inventory = !inventory;
         }
 
         Vector2 playerPos = {
@@ -83,11 +88,15 @@ int main() {
         DrawText("Settings: Press l to swap between 144 and 60 FPS", 20, 100, 20, GREEN);
         starField.draw();
         game.drawPlanets();
+        game.drawItems();
         renderer::update(RenderPack);
         game.drawBullets();
         game.drawEnemies();
         game.player.updateSparksFromShot(dt);
         game.player.handleSparks(dt);
+        if (inventory) {
+            game.player.displayInventory();
+        }
         EndMode2D();
 
         EndDrawing();

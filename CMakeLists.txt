@@ -21,14 +21,15 @@ add_executable(SpaceGame WIN32
         Libs/Math.cpp
         Game/Planet/PlanetField.cpp
         Game/Planet/PlanetField.h
+        Game/Planet/PlnateType.h
 )
 
 target_include_directories(SpaceGame PRIVATE
-        "C:/Users/Zotyi/Downloads/mingw64/include"
+        "C:/Users/Zotyi/Downloads/mingw64/include" # Change it
 )
 
 target_link_directories(SpaceGame PRIVATE
-        "C:/Users/Zotyi/Downloads/mingw64/lib"
+        "C:/Users/Zotyi/Downloads/mingw64/lib" # Change it
 )
 
 target_link_libraries(SpaceGame PRIVATE

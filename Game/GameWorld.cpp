@@ -2,7 +2,7 @@
 //
 // Created by Gravity_BYG on 2026. 10. 18..
 //
-
+// TODO: Delete Planets and items out of the range
 #include "GameWorld.h"
 
 void GameWorld::handleEnemies(const float dt) {
@@ -71,7 +71,8 @@ void GameWorld::useBullet() {
 
 void GameWorld::updatePlanets() {
     for (auto& [key, planets] : planetField.getChunks()) {
-        for (Planet& planet : planets) {
+        for (int j = 0; j < planets.size();) {
+            Planet& planet = planets[j];
             for (int i = 0; i < bullets.size();) {
                 Bullet& bullet = bullets[i];
 
@@ -83,6 +84,14 @@ void GameWorld::updatePlanets() {
                     } else {
                         i++;
                     }
+            }
+
+            if (planet.health <= 0) {
+                ItemP item = ItemP(planet.type,planet.position);
+                items.push_back(item);
+                planets.erase(planets.begin() + j);
+            } else {
+                j++;
             }
         }
     }
@@ -113,6 +122,21 @@ void GameWorld::updateEnemies(float dt) {
     }
 }
 
+
+void GameWorld::storeItems() {
+    for (int i = 0; i < items.size();) {
+        ItemP& item = items[i];
+        if (Math::distance(player.position, item.position) <= item.r + player.r) {
+            ItemI itemI = ItemI(item.type);
+            player.inventory.push_back(itemI);
+            items.erase(items.begin() + i);
+        } else {
+            i++;
+        }
+    }
+}
+
+
 RD GameWorld::update(const float dt, Vector2 mousePos) {
     player.update(dt);
 
@@ -141,6 +165,7 @@ RD GameWorld::update(const float dt, Vector2 mousePos) {
     planetField.generateAround({player.position.x,player.position.y}, 1);
     planetField.generateAround(player.position, 1);
     updatePlanets();
+    storeItems();
 
     return rd;
 }
@@ -148,5 +173,15 @@ RD GameWorld::update(const float dt, Vector2 mousePos) {
 void GameWorld::drawBullets() {
     for (Bullet& bullet : bullets) {
         DrawCircle(bullet.position.x,bullet.position.y,bullet.r,bullet.color);
+    }
+}
+
+
+
+
+
+void GameWorld::drawItems() {
+    for (ItemP& item : items) {
+        item.draw();
     }
 }
