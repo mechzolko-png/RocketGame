@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "file:C:/Users/Zotyi/Desktop/asztali gyüjtő/HEXA - K.P.O RIM/Hexa/Hexa.2/structure.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "structure"
             }
           }
         ]
@@ -188,7 +188,7 @@
       "bases:Új bázis létrehozása": false
     }
   },
-  "active": "a9442fbef6ed5bf2",
+  "active": "807641bcc95df590",
   "lastOpenFiles": [
     "DevNote.md",
     "Documents/Magyar/Függőségek.md",
