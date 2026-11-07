@@ -1,7 +1,7 @@
 {
 	"InstallScripts" : 
 	[
-		"C:/Users/Zotyi/CLionProjects/RocketGame/build/cmake_install.cmake"
+		"/home/zoli/Projects/RocketGame/build/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

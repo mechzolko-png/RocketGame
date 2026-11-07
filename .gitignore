@@ -1,0 +1,9 @@
+# folders to ignore
+build/
+.idea/
+
+# files to ignore
+DevNote.md
+DevNote
+output.txt
+

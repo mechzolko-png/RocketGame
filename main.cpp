@@ -76,12 +76,14 @@ int main() {
             camera.zoom
         );
 
-        BeginDrawing();
+        BeginDrawing(); // DRAW
+        
         ClearBackground(BLACK);
 
         string TextFPS = "FPS: " + to_string(FPS);
 
-        BeginMode2D(camera);
+        BeginMode2D(camera);  // CAMERA
+
         DrawText("TUTORIAL:", 20, 20, 30, GREEN);
         DrawText("Controls: W A S D", 20, 60, 20, GREEN);
         DrawText(TextFPS.c_str(), 20, 80, 20, GREEN);
@@ -94,9 +96,11 @@ int main() {
         game.drawEnemies();
         game.player.updateSparksFromShot(dt);
         game.player.handleSparks(dt);
+        
         if (inventory) {
             game.player.displayInventory();
         }
+        
         EndMode2D();
 
         EndDrawing();

@@ -162,7 +162,6 @@ RD GameWorld::update(const float dt, Vector2 mousePos) {
     }
 
     useBullet();
-    planetField.generateAround({player.position.x,player.position.y}, 1);
     planetField.generateAround(player.position, 1);
     updatePlanets();
     storeItems();
